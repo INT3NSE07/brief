@@ -2,21 +2,6 @@
 set +vx -o pipefail
 [[ $- = *i* ]] && echo "Don't source this script!" && return 1
 version='0.39'
-# tldr-bash-client version 0.39
-# Bash client for tldr: community driven man-by-example
-# - forked from Ray Lee, https://github.com/raylee/tldr
-# - modified and expanded by pepa65: https://github.com/pepa65/tldr-bash-client
-# - binary download: http://4e4.win/tldr
-# Requiring: coreutils, grep, unzip, curl/wget, less (optional)
-
-# The 5 elements in TLDR markup that can be styled with these colors and
-# backgrounds (last one specified will be used) and modes (more can apply):
-#  Colors: Black, Red, Green, Yellow, Blue, Magenta, Cyan, White
-#  BG: BlackBG, RedBG, GreenBG, YellowBG, BlueBG, MagentaBG, CyanBG, WhiteBG
-#  Modes: Bold, Underline, Italic, Inverse
-# 'Newline' can be added to the style list to add a newline before the element
-# and 'Space' to add a space at the start of the line
-# (style items are separated by space, lower/uppercase mixed allowed)
 : "${TLDR_TITLE_STYLE:= Newline Space Bold Yellow }"
 : "${TLDR_DESCRIPTION_STYLE:= Space Yellow }"
 : "${TLDR_EXAMPLE_STYLE:= Newline Space Bold Green }"
@@ -49,11 +34,12 @@ version='0.39'
 # $1: [optional] exit code; Uses: version cachedir
 Usage(){
 	Out "$(cat <<-EOF
-		 $E$version
 
 		 ${HDE}USAGE: $HHE$(basename "$0")$XHHE [${HOP}option$XHOP] [${HPL}platform$XHPL/]${HCO}command$XHCO
 
 		 $HDE[${HPL}platform$XHPL/]${HCO}command$XHCO:          Show page for ${HCO}command$XHCO (from ${HPL}platform$XHPL)
+
+		 ${HDE}Element styling:$XHDE ${T}Title$XT ${D}Description$XD ${E}Example$XE ${C}Code$XC ${V}Value$XV
 
 		 ${HPL}platform$XHPL (optional) one of: ${HPL}common$XHPL, ${HPL}linux$XHPL, ${HPL}osx$XHPL, ${HPL}sunos$XHPL, ${HPL}windows$XHPL,
 		                             ${HPL}current$XHPL (includes ${HPL}common$XHPL)
@@ -62,15 +48,9 @@ Usage(){
 		  $HOP-s$XHOP, $HOP--search$XHOP ${HFI}regex$XHFI:         Search for ${HFI}regex$XHFI in all tldr pages
 		  $HOP-l$XHOP, $HOP--list$XHOP [${HPL}platform$XHPL]:      List all pages (from ${HPL}platform$XHPL)
 		  $HOP-a$XHOP, $HOP--list-all$XHOP:             List all pages from current platform + common
-		  $HOP-r$XHOP, $HOP--render$XHOP ${HFI}file$XHFI:          Render ${HFI}file$XHFI as tldr markdown
-		  $HOP-m$XHOP, $HOP--markdown$XHOP ${HCO}command$XHCO:     Show the markdown source for ${HCO}command$XHCO
 		  $HOP-u$XHOP, $HOP--update$XHOP:               Update the pages cache by downloading repo archive
-		  $HOP-v$XHOP, $HOP--version$XHOP:              Version number and github repo location
 		  $HDE[$HOP-h$XHOP, $HOP-?$XHOP, $HOP--help$XHOP]:           This help overview
 
-		 ${HDE}Element styling:$XHDE ${T}Title$XT ${D}Description$XD ${E}Example$XE ${C}Code$XC ${V}Value$XV
-		 ${HDE}All pages and the index are cached locally under $HUR$cachedir$XHUR.
-		 ${HDE}By default, the cached copies will be freshly downloaded after $HUR${TLDR_EXPIRY// /}$XHUR days.
 		EOF
 	)"
 	exit "${1:-0}"
@@ -198,8 +178,6 @@ Config(){
 	[[ $TLDR_LESS = 0 ]] && 
 		trap 'cat <<<"$stdout"' EXIT ||
 		trap 'less -~RXQFP"Browse up/down, press Q to exit " <<<"$stdout"' EXIT
-
-	version="tldr-bash-client version $version$XB ${URL}http://github.com/pepa65/tldr-bash-client$XURL"
 
 	# Select download method
 	dl="$(type -p curl) -sLfo" || {
