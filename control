@@ -1,7 +1,7 @@
 Source: brief
 Section: misc
 Priority: optional
-Maintainer: joe <d.jonathanpaul@gmail.com>
+Maintainer: INT3NSE <d.jonathanpaul@gmail.com>
 Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.8
 
