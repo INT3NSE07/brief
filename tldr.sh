@@ -16,7 +16,6 @@ set +vx -o pipefail
 : "${TLDR_ERROR_COLOR:= Newline Space Red }"
 : "${TLDR_INFO_COLOR:= Newline Space Green }"
 : "${TLDR_CACHE:= .}"
-: "${TLDR_LESS:= }"
 
 usage(){
 	Out "$(cat <<-EOF
@@ -133,21 +132,16 @@ init_term(){
 }
 
 config(){
-	type -p less >/dev/null || TLDR_LESS=0
-
+	type -p less >/dev/null
 	os=common stdout='' Q='"' N=$'\n'
     os='linux'
 	init_term
-	[[ $TLDR_LESS = 0 ]] && 
-		trap 'cat <<<"$stdout"' EXIT ||
-		trap 'less -~RXQFP"Browse up/down, press Q to exit " <<<"$stdout"' EXIT
-
+    trap 'less -~RXQFP"Browse up/down, press Q to exit " <<<"$stdout"' EXIT
 	cachedir=$(echo $TLDR_CACHE)
 	[[ -d "$cachedir" ]] || mkdir -p "$cachedir" || {
 		Err "Can't create the pages cache location $cachedir"
 		exit 4
 	}
-
 	index=$cachedir/index.json
 }
 
@@ -224,9 +218,7 @@ display(){
 				Out "$ENL$ESP$E$REPLY$XE" ;;
 		esac
 	done <"$1"
-	[[ $TLDR_LESS = 0 ]] && 
-		trap 'cat <<<"$stdout"' EXIT ||
-		trap 'less +Gg -~RXQFP"%pB\% tldr $I$page$XI - browse up/down, press Q to exit" <<<"$stdout"' EXIT
+    trap 'less +Gg -~RXQFP"%pB\% tldr $I$page$XI - browse up/down, press Q to exit" <<<"$stdout"' EXIT
 }
 
 list_pages(){
@@ -277,7 +269,7 @@ main(){
 	
 	Get_tldr "${page// /-}"
 	[[ ! -s $cached ]] && Err "page for command $I$page$XI not found" && exit 27
-	((markdown)) && Out "$(cat "$cached")" || display "$cached"
+	display "$cached"
 }
 
 main "$@"
