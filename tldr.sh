@@ -35,9 +35,6 @@ Usage(){
 
 		 ${HDE}Element styling:$XHDE ${T}Title$XT ${D}Description$XD ${E}Example$XE ${C}Code$XC ${V}Value$XV
 
-		 ${HPL}platform$XHPL (optional) one of: ${HPL}common$XHPL, ${HPL}linux$XHPL, ${HPL}osx$XHPL, ${HPL}sunos$XHPL, ${HPL}windows$XHPL,
-		                             ${HPL}current$XHPL (includes ${HPL}common$XHPL)
-
 		 ${HOP}option$XHOP is optionally one of:
 		  $HOP-s$XHOP, $HOP--search$XHOP ${HFI}regex$XHFI:         Search for ${HFI}regex$XHFI in all tldr pages
 		  $HOP-l$XHOP, $HOP--list$XHOP [${HPL}platform$XHPL]:      List all pages (from ${HPL}platform$XHPL)
@@ -155,13 +152,7 @@ Config(){
 	type -p less >/dev/null || TLDR_LESS=0
 
 	os=common stdout='' Q='"' N=$'\n'
-	case "$(uname -s)" in
-		Darwin) os='osx' ;;
-		Linux) os='linux' ;;
-		SunOS) os='sunos' ;;
-		CYGWIN*) os='windows' ;;
-		MINGW*) os='windows' ;;
-	esac
+    os='linux'
 	Init_term
 	[[ $TLDR_LESS = 0 ]] && 
 		trap 'cat <<<"$stdout"' EXIT ||
@@ -187,15 +178,6 @@ Get_tldr(){
 
 	[[ $desc ]] || return  # nothing found
 
-	if [[ $platform ]]
-	then  # platform given on commandline
-		[[ ! $desc =~ \"$platform\" ]] && notfound=$I$platform$XI && err=1 || md=$platform/$1.md
-	else  # check common
-		[[ $desc =~ \"common\" ]] && md=common/$1.md || {  # not in common either
-			[[ $notfound ]] && notfound+=" or "
-			notfound+=${I}common$XI
-		}
-	fi
 	# if no page found yet, try the system platform
 	[[ $md ]] || [[ $platform = $os ]] || {
 			[[ $desc =~ \"$os\" ]] && md=$os/$1.md
@@ -203,9 +185,6 @@ Get_tldr(){
 		notfound+=" or $I$os$XI"
 		err=1
 	}
-	# if still no page found, get the first entry in index
-	[[ $md ]] || md=$(cut -d "$Q" -f 8 <<<"$desc")/"$1.md"
-	((err)) && Err "tldr page $I$1$XI not found in $notfound, from platform $U${md%/*}$XU instead"
 
 	# return the local cached copy of the tldrpage, or retrieve and cache from github
 	cached=$cachedir/$md
