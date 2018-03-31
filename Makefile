@@ -18,7 +18,7 @@ build:  clean
 	mkdir ${OUT_DIR}
 	cp -r brief linux index.json brief-completion ${DEBFOLDERNAME}
 	cd ${DEBFOLDERNAME}; \
-	dh_make --indep --createorig --native; \
+	dh_make -y --indep --createorig --native; \
 	grep -v makefile debian/rules > debian/rules.new; \
 	mv debian/rules.new debian/rules; \
 	echo brief ${BINDIR} > debian/install; \
