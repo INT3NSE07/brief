@@ -40,4 +40,4 @@ mkdir out
 
 mv ${SOURCEBIN}_${DEBVERSION}-1_all.deb out/
 
-rm -rf $SOURCEBIN*
+rm -rf ${SOURCEBIN}_* ${SOURCEBIN}-*
