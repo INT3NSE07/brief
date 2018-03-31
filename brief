@@ -219,7 +219,6 @@ display(){
 list_pages(){
 	local platformtext c1 c2 c3
     platformtext="$I$os$XI platform"
-	Inf "Known pages from $platformtext:"
 	Out "$(while read -r c1 c2 c3; do printf "%-19s %-19s %-19s %-19s$N" $c1 $c2 $c3; done \
 			<<<$(tr '{' '\n' <"$index" |grep $platform |cut -d "$Q" -f4))"
 	exit "$1"
