@@ -1,0 +1,11 @@
+Source: tldr-bash-client
+Section: misc
+Priority: optional
+Maintainer: joe <d.jonathanpaul@gmail.com>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.8
+
+Package: tldr-bash-client
+Architecture: all
+Depends: ${misc:Depends}
+Description: Simplified man pages

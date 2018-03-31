@@ -25,6 +25,8 @@ echo linux usr/share/tldr-pages >> debian/install
 echo index.json usr/share/tldr-pages >> debian/install
 echo autocomp.bash usr/share/tldr-pages >> debian/install
 
+cp -f ../control debian/
+
 # Remove the example files
 rm debian/*.ex
 
