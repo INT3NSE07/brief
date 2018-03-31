@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "Setting up autocomplete"
+. /usr/share/brief-completion/brief.bash

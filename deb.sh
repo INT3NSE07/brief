@@ -8,7 +8,7 @@ DEBFOLDERNAME=$SOURCEBIN-$DEBVERSION
 mkdir $DEBFOLDERNAME
 
 # Copy your script to the source dir
-cp -r brief linux index.json autocomp.bash $DEBFOLDERNAME
+cp -r brief linux index.json brief-completion $DEBFOLDERNAME
 cd $DEBFOLDERNAME
 
 # Create the packaging skeleton (debian/*)
@@ -23,9 +23,10 @@ mv debian/rules.new debian/rules
 echo brief usr/bin > debian/install
 echo linux usr/share/brief >> debian/install
 echo index.json usr/share/brief >> debian/install
-echo autocomp.bash usr/share/brief >> debian/install
+echo brief-completion/brief.bash usr/share >> debian/install
 
 cp -f ../control debian/
+cp -f ../postinst debian/
 
 # Remove the example files
 rm debian/*.ex
