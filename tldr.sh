@@ -148,16 +148,13 @@ config(){
 get_tldr(){
 	local desc err=0 notfound
 	desc=$(tr '{' '\n' <"$index" |grep "\"name\":\"$1\"")
-
-	[[ $desc ]] || return  # nothing found
-
+	[[ $desc ]] || return
 	[[ $md ]] || [[ $platform = $os ]] || {
 			[[ $desc =~ \"$os\" ]] && md=$os/$1.md
 	} || {
 		notfound+=" or $I$os$XI"
 		err=1
 	}
-
 	cached=$cachedir/$md
 }
 
@@ -182,7 +179,7 @@ display(){
 				((++ln))
 			}
 		}
-		case "${REPLY:0:1}" in  # first character
+		case "${REPLY:0:1}" in
 			'#') ((newfmt))
 				((${#REPLY} <= 2))
 				[[ ! ${REPLY:1:1} = ' ' ]]
@@ -200,7 +197,6 @@ display(){
 				((${#REPLY} <= 4))
 				[[ ${REPLY:0:4} = '    ' ]]
 				val=${REPLY:4}
-				# Value: convert {{value}}
 				val=${val//\{\{/$CX$V}
 				val=${val//\}\}/$XV$C}
 				Out "$CNL$CSP$C$val$XC" ;;
@@ -208,7 +204,6 @@ display(){
 				((${#REPLY} <= 2))
 				[[ ! ${REPLY: -1} = '`' ]]
 				val=${REPLY:1:${#REPLY}-2}
-				# Value: convert {{value}}
 				val=${val//\{\{/$CX$V}
 				val=${val//\}\}/$XV$C}
 				Out "$CNL$CSP$C$val$XC" ;;
@@ -240,7 +235,7 @@ find_regex(){
 	then
 		display "$list"
 	else
-		Inf "Regex $regex $I$n$XI times found in these $I$t$XI tldr pages:"
+		Inf "Regex $regex found $I$n$XI times in these $I$t$XI pages:"
 		Out "$(while read -r c1 c2 c3; do printf "%-19s %-19s %-19s %-19s$N" $c1 $c2 $c3; done \
 			<<<$(sed -e 's@.*/@@' -e 's@...$@@' <<<"$list"))"
 	fi
@@ -248,16 +243,16 @@ find_regex(){
 }
 
 main(){
-	local err=0 nomore='No more command line arguments allowed'
+	local err=0
 	config
 	case "$1" in
 	-s|--search) [[ -z $2 ]] && Err "Search term (regex) needed" && usage 10
-		[[ $3 ]] && Err "$nomore" && err=11
+		[[ $3 ]] && err=11
 		find_regex "$2" "$err" ;;
-	-a|--list-all) [[ $2 ]] && Err "$nomore" && err=14
+	-a|--list-all) [[ $2 ]] && err=14
 		platform=linux
 		list_pages $err ;;
-	''|-h|-\?|--help) [[ $2 ]] && Err "$nomore" && err=22
+	''|-h|-\?|--help) [[ $2 ]] && err=22
 		usage "$err" ;;
 	-*) Err "Unrecognized option $I$1$XI"; usage 23 ;;
 	*) page=$* ;;
