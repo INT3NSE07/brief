@@ -12,7 +12,7 @@ cp -r tldr linux index.json autocomp.bash $DEBFOLDERNAME
 cd $DEBFOLDERNAME
 
 # Create the packaging skeleton (debian/*)
-dh_make --indep --createorig
+dh_make --indep --createorig || exit 1
 
 # Remove make calls
 grep -v makefile debian/rules > debian/rules.new
@@ -30,9 +30,11 @@ cp -f ../control debian/
 # Remove the example files
 rm debian/*.ex
 
-debuild -us -uc
+debuild -us -uc || exit 1
 
 cd ..
+
+rm -rf out
 
 mkdir out
 
