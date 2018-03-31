@@ -6,8 +6,6 @@ set +vx -o pipefail
 : "${TLDR_EXAMPLE_STYLE:= Newline Space Bold Green }"
 : "${TLDR_CODE_STYLE:= Space Bold Blue }"
 : "${TLDR_VALUE_ISTYLE:= Space Bold Cyan }"
-# The Value style (above) is an Inline style: doesn't take Newline or Space
-# Inline styles for help text: default, URL, option, platform, command, header
 : "${TLDR_DEFAULT_ISTYLE:= White }"
 : "${TLDR_URL_ISTYLE:= Yellow }"
 : "${TLDR_HEADER_ISTYLE:= Bold }"
@@ -15,17 +13,11 @@ set +vx -o pipefail
 : "${TLDR_PLATFORM_ISTYLE:= Bold Blue }"
 : "${TLDR_COMMAND_ISTYLE:= Bold Cyan }"
 : "${TLDR_FILE_ISTYLE:= Bold Magenta }"
-# Color/BG (Newline and Space also allowed) for error and info messages
 : "${TLDR_ERROR_COLOR:= Newline Space Red }"
 : "${TLDR_INFO_COLOR:= Newline Space Green }"
-
-# Alternative location of pages cache
 : "${TLDR_CACHE:= .}"
-
-# Usage of 'less' or 'cat' for output (set to '0' for cat)
 : "${TLDR_LESS:= }"
 
-# $1: [optional] exit code; Uses: version cachedir
 Usage(){
 	Out "$(cat <<-EOF
 
@@ -257,11 +249,8 @@ Display_tldr(){
 # $1: exit code; Uses: platform index
 List_pages(){
 	local platformtext c1 c2 c3
-	[[ $platform ]] && platformtext="platform $I$platform$XI" ||
-		platform=^ platformtext="${I}all$XI platforms"
-	[[ $platform = current ]] && platform="-e $os -e common" &&
-		platformtext="$I$os$XI platform and ${I}common$XI"
-	Inf "Known tldr pages from $platformtext:"
+    platformtext="$I$os$XI platform"
+	Inf "Known pages from $platformtext:"
 	Out "$(while read -r c1 c2 c3; do printf "%-19s %-19s %-19s %-19s$N" $c1 $c2 $c3; done \
 			<<<$(tr '{' '\n' <"$index" |grep $platform |cut -d "$Q" -f4))"
 	exit "$1"
@@ -287,34 +276,15 @@ Find_regex(){
 
 # $@: commandline parameters; Uses: version cached; Sets: platform page
 Main(){
-	local markdown=0 err=0 nomore='No more command line arguments allowed'
+	local err=0 nomore='No more command line arguments allowed'
 	Config
 	case "$1" in
 	-s|--search) [[ -z $2 ]] && Err "Search term (regex) needed" && Usage 10
 		[[ $3 ]] && Err "$nomore" && err=11
 		Find_regex "$2" "$err" ;;
-	-l|--list) [[ $2 ]] && {
-			platform=$2
-			[[ ,common,linux,osx,sunos,windows,current, != *,$platform,* ]] &&
-				Err "Unknown platform $I$platform$XI" && Usage 12
-			[[ $3 ]] && Err "$nomore" && err=13
-		}
-		List_pages "$err" ;;
-	-a|--list-all) [[ $2 ]] && Err "$nomore" && err=14
-		platform=current
+	-l|--list) [[ $2 ]] && Err "$nomore" && err=14
+		platform=linux
 		List_pages $err ;;
-	-r|--render) [[ -z $2 ]] && Err "Specify a file to render" && Usage 17
-		[[ $3 ]] && Err "$nomore" && err=18
-		[[ -f "$2" ]] && {
-			Display_tldr "$2" && exit "$err"
-			Err "A file error occured"
-			exit 19
-		} || Err "No file: ${I}$2$XI" && exit 20 ;;
-	-m|--markdown) shift
-		page=$*
-		[[ -z $page ]] && Err "Specify a page to display" && Usage 21
-		[[ -f "$page" && ${page: -3:3} = .md ]] && Out "$(cat "$page")" && exit 0
-		markdown=1 ;;
 	''|-h|-\?|--help) [[ $2 ]] && Err "$nomore" && err=22
 		Usage "$err" ;;
 	-*) Err "Unrecognized option $I$1$XI"; Usage 23 ;;
@@ -324,11 +294,7 @@ Main(){
 	[[ -z $page ]] && Err "No command specified" && Usage 24
 	[[ ${page:0:1} = '-' || $page = *' '-* ]] && Err "Only one option allowed" && Usage 25
 	[[ $page = */* ]] && platform=${page%/*} && page=${page##*/}
-	[[ $platform && ,common,linux,osx,sunos,windows, != *,$platform,* ]] && {
-		Err "Unknown platform $I$platform$XI"
-		Usage 26
-	}
-
+	
 	Get_tldr "${page// /-}"
 	[[ ! -s $cached ]] && Err "page for command $I$page$XI not found" && exit 27
 	((markdown)) && Out "$(cat "$cached")" || Display_tldr "$cached"
