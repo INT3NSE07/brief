@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set +vx -o pipefail
 [[ $- = *i* ]] && echo "Don't source this script!" && return 1
-version='0.39'
 : "${TLDR_TITLE_STYLE:= Newline Space Bold Yellow }"
 : "${TLDR_DESCRIPTION_STYLE:= Space Yellow }"
 : "${TLDR_EXAMPLE_STYLE:= Newline Space Bold Green }"
@@ -20,16 +19,11 @@ version='0.39'
 : "${TLDR_ERROR_COLOR:= Newline Space Red }"
 : "${TLDR_INFO_COLOR:= Newline Space Green }"
 
-# How many days before freshly downloading a potentially stale page
-: "${TLDR_EXPIRY:= 60 }"
-
 # Alternative location of pages cache
-: "${TLDR_CACHE:= }"
+: "${TLDR_CACHE:= .}"
 
 # Usage of 'less' or 'cat' for output (set to '0' for cat)
 : "${TLDR_LESS:= }"
-
-## Function definitions
 
 # $1: [optional] exit code; Uses: version cachedir
 Usage(){
@@ -48,7 +42,6 @@ Usage(){
 		  $HOP-s$XHOP, $HOP--search$XHOP ${HFI}regex$XHFI:         Search for ${HFI}regex$XHFI in all tldr pages
 		  $HOP-l$XHOP, $HOP--list$XHOP [${HPL}platform$XHPL]:      List all pages (from ${HPL}platform$XHPL)
 		  $HOP-a$XHOP, $HOP--list-all$XHOP:             List all pages from current platform + common
-		  $HOP-u$XHOP, $HOP--update$XHOP:               Update the pages cache by downloading repo archive
 		  $HDE[$HOP-h$XHOP, $HOP-?$XHOP, $HOP--help$XHOP]:           This help overview
 
 		EOF
@@ -158,11 +151,6 @@ Init_term(){
 	INF=$COLOR XINF=$XCOLOR INFNL=$NL INFSP=$SP
 }
 
-# $1: page
-Recent(){ find "$1" -mtime -"${TLDR_EXPIRY// /}" >/dev/null 2>&1;}
-
-# Initialize globals, check the environment; Uses: config cachedir version
-# Sets: stdout os version dl
 Config(){
 	type -p less >/dev/null || TLDR_LESS=0
 
@@ -179,36 +167,13 @@ Config(){
 		trap 'cat <<<"$stdout"' EXIT ||
 		trap 'less -~RXQFP"Browse up/down, press Q to exit " <<<"$stdout"' EXIT
 
-	# Select download method
-	dl="$(type -p curl) -sLfo" || {
-		dl="$(type -p wget) --max-redirect=20 -qNO" || {
-			Err "tldr requires ${I}curl$XI or ${I}wget$XI installed in your path"
-			exit 3
-		}
-	}
-
-	pages_url='https://raw.githubusercontent.com/tldr-pages/tldr/master/pages'
-	zip_url='http://tldr.sh/assets/tldr.zip'
-
 	cachedir=$(echo $TLDR_CACHE)
-	if [[ -z $cachedir ]]
-	then
-		[[ $XDG_DATA_HOME ]] && cachedir=$XDG_DATA_HOME/tldr ||
-			cachedir=$HOME/.local/share/tldr
-	fi
 	[[ -d "$cachedir" ]] || mkdir -p "$cachedir" || {
 		Err "Can't create the pages cache location $cachedir"
 		exit 4
 	}
-	index=$cachedir/index.json
-	# update if the file doesn't exists, or if it's older than $TLDR_EXPIRY
-	[[ -f $index ]] && Recent "$index" || Cache_fill
-}
 
-# $1: error message; Uses: md REPLY ln
-Unlinted(){
-	Err "Page $I$md$XI not properly linted!$N${ERRSP}${ERR}Line $I$ln$XI [$XERR$U$REPLY$XU$ERR]$N$ERRSP$ERR$1"
-	exit 5
+	index=$cachedir/index.json
 }
 
 # $1: page; Uses: index cachedir pages_url platform os dl cached md
@@ -244,10 +209,6 @@ Get_tldr(){
 
 	# return the local cached copy of the tldrpage, or retrieve and cache from github
 	cached=$cachedir/$md
-	Recent "$cached" || {
-		mkdir -p "${cached%/*}"
-		$dl "$cached" "$pages_url/$md" || Err "Could not download page $I$cached$XI with $dl"
-	}
 }
 
 # $1: file (optional); Uses: page stdout; Sets: ln REPLY
@@ -345,30 +306,6 @@ Find_regex(){
 	exit "$2"
 }
 
-# $1: exit code; Uses: dl cachedir zip_url
-Cache_fill(){
-	local tmp unzip
-	unzip="$(type -p unzip) -q" || {
-		Err "tldr requires ${I}unzip$XI to fill the cache"
-		exit 7
-	}
-	tmp=$(mktemp -d)
-	$dl "$tmp/pages.zip" "$zip_url" || {
-		rm -- "$tmp"
-		Err "Could not download pages archive from $U$zip_url$XU with $dl"
-		exit 8
-	}
-	$unzip "$tmp/pages.zip" -d "$tmp" 'pages/*' || {
-		rm -- "$tmp"
-		Err "Couldn't unzip the cache archive on $tmp/pages.zip"
-		exit 9
-	}
-	rm -rf -- "${cachedir:?}/"*
-	mv -- "$tmp/pages/"* "${cachedir:?}/"
-	rm -rf -- "$tmp"
-	Inf "Pages cached in $U$cachedir$XU"
-}
-
 # $@: commandline parameters; Uses: version cached; Sets: platform page
 Main(){
 	local markdown=0 err=0 nomore='No more command line arguments allowed'
@@ -387,12 +324,6 @@ Main(){
 	-a|--list-all) [[ $2 ]] && Err "$nomore" && err=14
 		platform=current
 		List_pages $err ;;
-	-u|--update) [[ $2 ]] && Err "$nomore" && err=15
-		Cache_fill
-		exit "$err" ;;
-	-v|--version) [[ $2 ]] && Err "$nomore" && err=16
-		Inf "$version"
-		exit "$err" ;;
 	-r|--render) [[ -z $2 ]] && Err "Specify a file to render" && Usage 17
 		[[ $3 ]] && Err "$nomore" && err=18
 		[[ -f "$2" ]] && {
@@ -420,11 +351,9 @@ Main(){
 	}
 
 	Get_tldr "${page// /-}"
-	[[ ! -s $cached ]] && Err "tldr page for command $I$page$XI not found" \
-			&& Inf "Contribute new pages at:$XB ${URL}https://github.com/tldr-pages/tldr$XURL" && exit 27
+	[[ ! -s $cached ]] && Err "page for command $I$page$XI not found" && exit 27
 	((markdown)) && Out "$(cat "$cached")" || Display_tldr "$cached"
 }
 
 Main "$@"
-# The error trap will output the accumulated stdout
 exit 0
