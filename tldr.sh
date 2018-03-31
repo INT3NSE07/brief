@@ -145,7 +145,7 @@ config(){
 	index=$cachedir/index.json
 }
 
-Get_tldr(){
+get_tldr(){
 	local desc err=0 notfound
 	desc=$(tr '{' '\n' <"$index" |grep "\"name\":\"$1\"")
 
@@ -171,50 +171,50 @@ display(){
 		((ln==1)) && {
 			[[ ${REPLY:0:1} = '#' ]] && newfmt=0 || newfmt=1
 			((newfmt)) && {
-				[[ $REPLY ]] || Unlinted "Empty title"
+				[[ $REPLY ]]
 				Out "$TNL$TSP$T$REPLY$XT"
 				len=${#REPLY}
 				read -r
 				((++ln))
-				[[ $REPLY =~ [^=] ]] && Unlinted "Title underline must be equal signs"
-				((len!=${#REPLY})) && Unlinted "Underline length not equal to title's"
+				[[ $REPLY =~ [^=] ]]
+				((len!=${#REPLY}))
 				read -r
 				((++ln))
 			}
 		}
 		case "${REPLY:0:1}" in  # first character
-			'#') ((newfmt)) && Unlinted "Bad first character"
-				((${#REPLY} <= 2)) && Unlinted "No title"
-				[[ ! ${REPLY:1:1} = ' ' ]] && Unlinted "2nd character no space"
+			'#') ((newfmt))
+				((${#REPLY} <= 2))
+				[[ ! ${REPLY:1:1} = ' ' ]]
 				Out "$TNL$TSP$T${REPLY:2}$XT" ;;
-			'>') ((${#REPLY} <= 3)) && Unlinted "No valid desciption"
-				[[ ! ${REPLY:1:1} = ' ' ]] && Unlinted "2nd character no space"
-				[[ ! ${REPLY: -1} = '.' ]] && Unlinted "Description doesn't end in full stop"
+			'>') ((${#REPLY} <= 3))
+				[[ ! ${REPLY:1:1} = ' ' ]]
+				[[ ! ${REPLY: -1} = '.' ]]
 				Out "$DNL$DSP$D${REPLY:2}$XD"
 				DNL='' ;;
-			'-') ((newfmt)) && Unlinted "Bad first character"
-				((${#REPLY} <= 2)) && Unlinted "No example content"
-				[[ ! ${REPLY:1:1} = ' ' ]] && Unlinted "2nd character no space"
+			'-') ((newfmt))
+				((${#REPLY} <= 2))
+				[[ ! ${REPLY:1:1} = ' ' ]]
 				Out "$ENL$ESP$E${REPLY:2}$XE" ;;
-			' ') ((newfmt)) || Unlinted "Bad first character"
-				((${#REPLY} <= 4)) && Unlinted "No valid code content"
-				[[ ${REPLY:0:4} = '    ' ]] || Unlinted "No four spaces before code"
+			' ') ((newfmt))
+				((${#REPLY} <= 4))
+				[[ ${REPLY:0:4} = '    ' ]]
 				val=${REPLY:4}
 				# Value: convert {{value}}
 				val=${val//\{\{/$CX$V}
 				val=${val//\}\}/$XV$C}
 				Out "$CNL$CSP$C$val$XC" ;;
-			'`') ((newfmt)) && Unlinted "Bad first character"
-				((${#REPLY} <= 2)) && Unlinted "No valid code content"
-				[[ ! ${REPLY: -1} = '`' ]] && Unlinted "Code doesn't end in backtick"
+			'`') ((newfmt))
+				((${#REPLY} <= 2))
+				[[ ! ${REPLY: -1} = '`' ]]
 				val=${REPLY:1:${#REPLY}-2}
 				# Value: convert {{value}}
 				val=${val//\{\{/$CX$V}
 				val=${val//\}\}/$XV$C}
 				Out "$CNL$CSP$C$val$XC" ;;
 			'') continue ;;
-			*) ((newfmt)) || Unlinted "Bad first character"
-				[[ -z $REPLY ]] && Unlinted "No example content"
+			*) ((newfmt))
+				[[ -z $REPLY ]]
 				Out "$ENL$ESP$E$REPLY$XE" ;;
 		esac
 	done <"$1"
@@ -267,7 +267,7 @@ main(){
 	[[ ${page:0:1} = '-' || $page = *' '-* ]] && Err "Only one option allowed" && usage 25
 	[[ $page = */* ]] && platform=${page%/*} && page=${page##*/}
 	
-	Get_tldr "${page// /-}"
+	get_tldr "${page// /-}"
 	[[ ! -s $cached ]] && Err "page for command $I$page$XI not found" && exit 27
 	display "$cached"
 }
