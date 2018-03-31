@@ -18,36 +18,31 @@ set +vx -o pipefail
 : "${TLDR_CACHE:= .}"
 : "${TLDR_LESS:= }"
 
-Usage(){
+usage(){
 	Out "$(cat <<-EOF
 
-		 ${HDE}USAGE: $HHE$(basename "$0")$XHHE [${HOP}option$XHOP] [${HPL}platform$XHPL/]${HCO}command$XHCO
+		 ${HDE}USAGE: $HHE$(basename "$0")$XHHE [${HOP}option$XHOP] ${HCO}command$XHCO
 
-		 $HDE[${HPL}platform$XHPL/]${HCO}command$XHCO:          Show page for ${HCO}command$XHCO (from ${HPL}platform$XHPL)
-
-		 ${HDE}Element styling:$XHDE ${T}Title$XT ${D}Description$XD ${E}Example$XE ${C}Code$XC ${V}Value$XV
+		 ${HCO}command$XHCO:                      Show page for ${HCO}command$XHCO
 
 		 ${HOP}option$XHOP is optionally one of:
-		  $HOP-s$XHOP, $HOP--search$XHOP ${HFI}regex$XHFI:         Search for ${HFI}regex$XHFI in all tldr pages
-		  $HOP-l$XHOP, $HOP--list$XHOP [${HPL}platform$XHPL]:      List all pages (from ${HPL}platform$XHPL)
-		  $HOP-a$XHOP, $HOP--list-all$XHOP:             List all pages from current platform + common
-		  $HDE[$HOP-h$XHOP, $HOP-?$XHOP, $HOP--help$XHOP]:           This help overview
+		  $HOP-s$XHOP, $HOP--search$XHOP ${HFI}regex$XHFI:          Search for ${HFI}regex$XHFI in all tldr pages
+		  $HOP-a$XHOP, $HOP--list-all$XHOP:              List all pages
+		  $HDE[$HOP-h$XHOP, $HOP-?$XHOP, $HOP--help$XHOP]:            This help overview
+
+		 ${HDE}Element styling:$XHDE ${T}Title$XT ${D}Description$XD ${E}Example$XE ${C}Code$XC ${V}Value$XV
 
 		EOF
 	)"
 	exit "${1:-0}"
 }
 
-# $1: keep output; Uses/Sets: stdout
 Out(){ stdout+=$1$N;}
 
-# $1: keep error messages
 Err(){ Out "$ERRNL$ERRSP$ERR$B$1$XB$XERR";}
 
-# $1: keep info messages
 Inf(){ Out "$INFNL$INFSP$INF$B$1$XB$XINF";}
 
-# $1: Style specification; Uses: color xcolor bg xbg mode xmode
 Style(){
 	local -l style
 	STYLES='' XSTYLES='' COLOR='' XCOLOR='' NL='' SP=''
@@ -62,38 +57,36 @@ Style(){
 	done
 }	
 
-# Sets: color xcolor bg xbg mode xmode
-Init_term(){
-	[[ -t 2 ]] && {  # only if interactive session (stderr open)
-			B=$'\e[1m' # $(tput bold || tput md)  # Start bold
-			XB=$'\e[0m'  # End bold (no tput code...)
-			U=$'\e[4m' # $(tput smul || tput us)  # Start underline
-			XU=$'\e[24m' # $(tput rmul || tput ue)  # End underline
-			I=$'\e[3m' # $(tput sitm || tput ZH)  # Start italic
-			XI=$'\e[23m' # $(tput ritm || tput ZR)  # End italic
-			R=$'\e[7m' # $(tput smso || tput so)  # Start reverse
-			XR=$'\e[27m' # $(tput rmso || tput se)  # End reverse
-			#X=$'\e[0m' # $(tput sgr0 || tput me)  # End all
+init_term(){
+	[[ -t 2 ]] && {
+			B=$'\e[1m'
+			XB=$'\e[0m'
+			U=$'\e[4m'
+			XU=$'\e[24m'
+			I=$'\e[3m'
+			XI=$'\e[23m'
+			R=$'\e[7m'
+			XR=$'\e[27m'
 
 		[[ $TERM != *-m ]] && {
-				BLA=$'\e[30m' # $(tput setaf 0 || tput AF 0)
-				RED=$'\e[31m' # $(tput setaf 1 || tput AF 1)
-				GRE=$'\e[32m' # $(tput setaf 2 || tput AF 2)
-				YEL=$'\e[33m' # $(tput setaf 3 || tput AF 3)
-				BLU=$'\e[34m' # $(tput setaf 4 || tput AF 4)
-				MAG=$'\e[35m' # $(tput setaf 5 || tput AF 5)
-				CYA=$'\e[36m' # $(tput setaf 6 || tput AF 6)
-				WHI=$'\e[37m' # $(tput setaf 7 || tput AF 7)
-				DEF=$'\e[39m' # $(tput op)
-				BLAB=$'\e[40m' # $(tput setab 0 || tput AB 0)
-				REDB=$'\e[41m' # $(tput setab 1 || tput AB 1)
-				GREB=$'\e[42m' # $(tput setab 2 || tput AB 2)
-				YELB=$'\e[43m' # $(tput setab 3 || tput AB 3)
-				BLUB=$'\e[44m' # $(tput setab 4 || tput AB 4)
-				MAGB=$'\e[45m' # $(tput setab 5 || tput AB 5)
-				CYAB=$'\e[46m' # $(tput setab 6 || tput AB 6)
-				WHIB=$'\e[47m' # $(tput setab 7 || tput AB 7)
-				DEFB=$'\e[49m' # $(tput op)
+				BLA=$'\e[30m'
+				RED=$'\e[31m'
+				GRE=$'\e[32m'
+				YEL=$'\e[33m'
+				BLU=$'\e[34m'
+				MAG=$'\e[35m'
+				CYA=$'\e[36m'
+				WHI=$'\e[37m'
+				DEF=$'\e[39m'
+				BLAB=$'\e[40m'
+				REDB=$'\e[41m'
+				GREB=$'\e[42m'
+				YELB=$'\e[43m'
+				BLUB=$'\e[44m'
+				MAGB=$'\e[45m'
+				CYAB=$'\e[46m'
+				WHIB=$'\e[47m'
+				DEFB=$'\e[49m'
 		}
 	}
 
@@ -108,7 +101,6 @@ Init_term(){
 	declare -A mode=(['bold']=$B ['underline']=$U ['italic']=$I ['inverse']=$R)
 	declare -A xmode=(['bold']=$XB ['underline']=$XU ['italic']=$XI ['inverse']=$XR)
 
-	# the 5 main tldr page styles and error message colors
 	Style "$TLDR_TITLE_STYLE"
 	T=$STYLES XT=$XSTYLES TNL=$NL TSP=$SP
 	Style "$TLDR_DESCRIPTION_STYLE"
@@ -140,12 +132,12 @@ Init_term(){
 	INF=$COLOR XINF=$XCOLOR INFNL=$NL INFSP=$SP
 }
 
-Config(){
+config(){
 	type -p less >/dev/null || TLDR_LESS=0
 
 	os=common stdout='' Q='"' N=$'\n'
     os='linux'
-	Init_term
+	init_term
 	[[ $TLDR_LESS = 0 ]] && 
 		trap 'cat <<<"$stdout"' EXIT ||
 		trap 'less -~RXQFP"Browse up/down, press Q to exit " <<<"$stdout"' EXIT
@@ -159,18 +151,12 @@ Config(){
 	index=$cachedir/index.json
 }
 
-# $1: page; Uses: index cachedir pages_url platform os dl cached md
-# Sets: cached md
 Get_tldr(){
 	local desc err=0 notfound
-	# convert the local platform name to tldr's version
-	# extract the platform key from index.json, return preferred subpath to page
 	desc=$(tr '{' '\n' <"$index" |grep "\"name\":\"$1\"")
-	# results in, eg, "name":"netstat","platform":["linux","osx"]},
 
 	[[ $desc ]] || return  # nothing found
 
-	# if no page found yet, try the system platform
 	[[ $md ]] || [[ $platform = $os ]] || {
 			[[ $desc =~ \"$os\" ]] && md=$os/$1.md
 	} || {
@@ -178,16 +164,13 @@ Get_tldr(){
 		err=1
 	}
 
-	# return the local cached copy of the tldrpage, or retrieve and cache from github
 	cached=$cachedir/$md
 }
 
-# $1: file (optional); Uses: page stdout; Sets: ln REPLY
-Display_tldr(){
+display(){
 	local newfmt len val
 	ln=0 REPLY=''
 	[[ $md ]] || md=$1
-	# Read full lines, and process even when no newline at the end
 	while read -r || [[ $REPLY ]]
 	do
 		((++ln))
@@ -196,7 +179,7 @@ Display_tldr(){
 			((newfmt)) && {
 				[[ $REPLY ]] || Unlinted "Empty title"
 				Out "$TNL$TSP$T$REPLY$XT"
-				len=${#REPLY}  # title length
+				len=${#REPLY}
 				read -r
 				((++ln))
 				[[ $REPLY =~ [^=] ]] && Unlinted "Title underline must be equal signs"
@@ -246,8 +229,7 @@ Display_tldr(){
 		trap 'less +Gg -~RXQFP"%pB\% tldr $I$page$XI - browse up/down, press Q to exit" <<<"$stdout"' EXIT
 }
 
-# $1: exit code; Uses: platform index
-List_pages(){
+list_pages(){
 	local platformtext c1 c2 c3
     platformtext="$I$os$XI platform"
 	Inf "Known pages from $platformtext:"
@@ -256,16 +238,15 @@ List_pages(){
 	exit "$1"
 }
 
-# $1: regex, $2: exit code; Uses: cachedir
-Find_regex(){
-	local list=$(grep "$1" "$cachedir"/*/*.md |cut -d: -f1) regex="$U$1$XU"
+find_regex(){
+	local list=$(grep -P "$1" "$cachedir"/*/*.md |cut -d: -f1) regex="$U$1$XU"
 	local n=$(wc -l <<<"$list")
 	list=$(sort -u <<<"$list")
 	[[ -z $list ]] && Err "Regex $regex not found" && exit 6
 	local t=$(wc -l <<<"$list")
 	if ((t==1))
 	then
-		Display_tldr "$list"
+		display "$list"
 	else
 		Inf "Regex $regex $I$n$XI times found in these $I$t$XI tldr pages:"
 		Out "$(while read -r c1 c2 c3; do printf "%-19s %-19s %-19s %-19s$N" $c1 $c2 $c3; done \
@@ -274,31 +255,30 @@ Find_regex(){
 	exit "$2"
 }
 
-# $@: commandline parameters; Uses: version cached; Sets: platform page
-Main(){
+main(){
 	local err=0 nomore='No more command line arguments allowed'
-	Config
+	config
 	case "$1" in
-	-s|--search) [[ -z $2 ]] && Err "Search term (regex) needed" && Usage 10
+	-s|--search) [[ -z $2 ]] && Err "Search term (regex) needed" && usage 10
 		[[ $3 ]] && Err "$nomore" && err=11
-		Find_regex "$2" "$err" ;;
-	-l|--list) [[ $2 ]] && Err "$nomore" && err=14
+		find_regex "$2" "$err" ;;
+	-a|--list-all) [[ $2 ]] && Err "$nomore" && err=14
 		platform=linux
-		List_pages $err ;;
+		list_pages $err ;;
 	''|-h|-\?|--help) [[ $2 ]] && Err "$nomore" && err=22
-		Usage "$err" ;;
-	-*) Err "Unrecognized option $I$1$XI"; Usage 23 ;;
+		usage "$err" ;;
+	-*) Err "Unrecognized option $I$1$XI"; usage 23 ;;
 	*) page=$* ;;
 	esac
 
-	[[ -z $page ]] && Err "No command specified" && Usage 24
-	[[ ${page:0:1} = '-' || $page = *' '-* ]] && Err "Only one option allowed" && Usage 25
+	[[ -z $page ]] && Err "No command specified" && usage 24
+	[[ ${page:0:1} = '-' || $page = *' '-* ]] && Err "Only one option allowed" && usage 25
 	[[ $page = */* ]] && platform=${page%/*} && page=${page##*/}
 	
 	Get_tldr "${page// /-}"
 	[[ ! -s $cached ]] && Err "page for command $I$page$XI not found" && exit 27
-	((markdown)) && Out "$(cat "$cached")" || Display_tldr "$cached"
+	((markdown)) && Out "$(cat "$cached")" || display "$cached"
 }
 
-Main "$@"
+main "$@"
 exit 0
