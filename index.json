@@ -702,8 +702,6 @@
 {"name":"timedatectl","platform":["linux"]},
 {"name":"timeout","platform":["linux"]},
 {"name":"timew","platform":["linux"]},
-{"name":"tldr","platform":["linux"]},
-{"name":"tldrl","platform":["linux"]},
 {"name":"tmux","platform":["linux"]},
 {"name":"tomb","platform":["linux"]},
 {"name":"top","platform":["linux"]},

@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 set +vx -o pipefail
 [[ $- = *i* ]] && echo "Don't source this script!" && return 1
-: "${TLDR_TITLE_STYLE:= Newline Space Bold Yellow }"
-: "${TLDR_DESCRIPTION_STYLE:= Space Yellow }"
-: "${TLDR_EXAMPLE_STYLE:= Newline Space Bold Green }"
-: "${TLDR_CODE_STYLE:= Space Bold Blue }"
-: "${TLDR_VALUE_ISTYLE:= Space Bold Cyan }"
-: "${TLDR_DEFAULT_ISTYLE:= White }"
-: "${TLDR_URL_ISTYLE:= Yellow }"
-: "${TLDR_HEADER_ISTYLE:= Bold }"
-: "${TLDR_OPTION_ISTYLE:= Bold Yellow }"
-: "${TLDR_PLATFORM_ISTYLE:= Bold Blue }"
-: "${TLDR_COMMAND_ISTYLE:= Bold Cyan }"
-: "${TLDR_FILE_ISTYLE:= Bold Magenta }"
-: "${TLDR_ERROR_COLOR:= Newline Space Red }"
-: "${TLDR_INFO_COLOR:= Newline Space Green }"
-: "${TLDR_CACHE:= .}"
+: "${TITLE_STYLE:= Newline Space Bold Yellow }"
+: "${DESCRIPTION_STYLE:= Space Yellow }"
+: "${EXAMPLE_STYLE:= Newline Space Bold Green }"
+: "${CODE_STYLE:= Space Bold Blue }"
+: "${VALUE_ISTYLE:= Space Bold Cyan }"
+: "${DEFAULT_ISTYLE:= White }"
+: "${URL_ISTYLE:= Yellow }"
+: "${HEADER_ISTYLE:= Bold }"
+: "${OPTION_ISTYLE:= Bold Yellow }"
+: "${PLATFORM_ISTYLE:= Bold Blue }"
+: "${COMMAND_ISTYLE:= Bold Cyan }"
+: "${FILE_ISTYLE:= Bold Magenta }"
+: "${ERROR_COLOR:= Newline Space Red }"
+: "${INFO_COLOR:= Newline Space Green }"
+: "${CACHE_DIR:= /usr/share/brief}"
 
 usage(){
 	Out "$(cat <<-EOF
@@ -25,7 +25,7 @@ usage(){
 		 ${HCO}command$XHCO:                      Show page for ${HCO}command$XHCO
 
 		 ${HOP}option$XHOP is optionally one of:
-		  $HOP-s$XHOP, $HOP--search$XHOP ${HFI}regex$XHFI:          Search for ${HFI}regex$XHFI in all tldr pages
+		  $HOP-s$XHOP, $HOP--search$XHOP ${HFI}regex$XHFI:          Search for ${HFI}regex$XHFI in all pages
 		  $HOP-a$XHOP, $HOP--list-all$XHOP:              List all pages
 		  $HDE[$HOP-h$XHOP, $HOP-?$XHOP, $HOP--help$XHOP]:            This help overview
 
@@ -100,34 +100,34 @@ init_term(){
 	declare -A mode=(['bold']=$B ['underline']=$U ['italic']=$I ['inverse']=$R)
 	declare -A xmode=(['bold']=$XB ['underline']=$XU ['italic']=$XI ['inverse']=$XR)
 
-	Style "$TLDR_TITLE_STYLE"
+	Style "$TITLE_STYLE"
 	T=$STYLES XT=$XSTYLES TNL=$NL TSP=$SP
-	Style "$TLDR_DESCRIPTION_STYLE"
+	Style "$DESCRIPTION_STYLE"
 	D=$STYLES XD=$XSTYLES DNL=$NL DSP=$SP
-	Style "$TLDR_EXAMPLE_STYLE"
+	Style "$EXAMPLE_STYLE"
 	E=$STYLES XE=$XSTYLES ENL=$NL ESP=$SP
-	Style "$TLDR_CODE_STYLE"
+	Style "$CODE_STYLE"
 	C=$STYLES XC=$XSTYLES CNL=$NL CSP=$SP
-	Style "$TLDR_VALUE_ISTYLE"
+	Style "$VALUE_ISTYLE"
 	V=$STYLES XV=$XSTYLES
-	Style "$TLDR_DEFAULT_ISTYLE"
+	Style "$DEFAULT_ISTYLE"
 	HDE=$STYLES XHDE=$XSTYLES
-	Style "$TLDR_URL_ISTYLE"
+	Style "$URL_ISTYLE"
 	URL=$STYLES XURL=$XSTYLES
 	HUR=$XHDE$STYLES XHUR=$XSTYLES$HDE
-	Style "$TLDR_OPTION_ISTYLE"
+	Style "$OPTION_ISTYLE"
 	HOP=$XHDE$STYLES XHOP=$XSTYLES$HDE
-	Style "$TLDR_PLATFORM_ISTYLE"
+	Style "$PLATFORM_ISTYLE"
 	HPL=$XHDE$STYLES XHPL=$XSTYLES$HDE
-	Style "$TLDR_COMMAND_ISTYLE"
+	Style "$COMMAND_ISTYLE"
 	HCO=$XHDE$STYLES XHCO=$XSTYLES$HDE
-	Style "$TLDR_FILE_ISTYLE"
+	Style "$FILE_ISTYLE"
 	HFI=$XHDE$STYLES XHFI=$XSTYLES$HDE
-	Style "$TLDR_HEADER_ISTYLE"
+	Style "$HEADER_ISTYLE"
 	HHE=$XHDE$STYLES XHHE=$XSTYLES$HDE
-	Style "$TLDR_ERROR_COLOR"
+	Style "$ERROR_COLOR"
 	ERR=$COLOR XERR=$XCOLOR ERRNL=$NL ERRSP=$SP
-	Style "$TLDR_INFO_COLOR"
+	Style "$INFO_COLOR"
 	INF=$COLOR XINF=$XCOLOR INFNL=$NL INFSP=$SP
 }
 
@@ -137,7 +137,7 @@ config(){
     os='linux'
 	init_term
     trap 'less -~RXQFP"Browse up/down, press Q to exit " <<<"$stdout"' EXIT
-	cachedir=$(echo $TLDR_CACHE)
+	cachedir=$(echo $CACHE_DIR)
 	[[ -d "$cachedir" ]] || mkdir -p "$cachedir" || {
 		Err "Can't create the pages cache location $cachedir"
 		exit 4
@@ -145,7 +145,7 @@ config(){
 	index=$cachedir/index.json
 }
 
-get_tldr(){
+get_brief(){
 	local desc err=0 notfound
 	desc=$(tr '{' '\n' <"$index" |grep "\"name\":\"$1\"")
 	[[ $desc ]] || return
@@ -213,7 +213,7 @@ display(){
 				Out "$ENL$ESP$E$REPLY$XE" ;;
 		esac
 	done <"$1"
-    trap 'less +Gg -~RXQFP"%pB\% tldr $I$page$XI - browse up/down, press Q to exit" <<<"$stdout"' EXIT
+    trap 'less +Gg -~RXQFP"%pB\% brief $I$page$XI - browse up/down, press Q to exit" <<<"$stdout"' EXIT
 }
 
 list_pages(){
@@ -262,7 +262,7 @@ main(){
 	[[ ${page:0:1} = '-' || $page = *' '-* ]] && Err "Only one option allowed" && usage 25
 	[[ $page = */* ]] && platform=${page%/*} && page=${page##*/}
 	
-	get_tldr "${page// /-}"
+	get_brief "${page// /-}"
 	[[ ! -s $cached ]] && Err "page for command $I$page$XI not found" && exit 27
 	display "$cached"
 }

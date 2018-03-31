@@ -8,7 +8,7 @@ DEBFOLDERNAME=$SOURCEBIN-$DEBVERSION
 mkdir $DEBFOLDERNAME
 
 # Copy your script to the source dir
-cp -r tldr linux index.json autocomp.bash $DEBFOLDERNAME
+cp -r brief linux index.json autocomp.bash $DEBFOLDERNAME
 cd $DEBFOLDERNAME
 
 # Create the packaging skeleton (debian/*)
@@ -20,10 +20,10 @@ mv debian/rules.new debian/rules
 
 # debian/install must contain the list of scripts to install 
 # as well as the target directory
-echo tldr usr/bin > debian/install
-echo linux usr/share/tldr-pages >> debian/install
-echo index.json usr/share/tldr-pages >> debian/install
-echo autocomp.bash usr/share/tldr-pages >> debian/install
+echo brief usr/bin > debian/install
+echo linux usr/share/brief >> debian/install
+echo index.json usr/share/brief >> debian/install
+echo autocomp.bash usr/share/brief >> debian/install
 
 cp -f ../control debian/
 
