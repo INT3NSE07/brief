@@ -12,7 +12,7 @@ cp -r brief linux index.json brief-completion $DEBFOLDERNAME
 cd $DEBFOLDERNAME
 
 # Create the packaging skeleton (debian/*)
-dh_make --indep --createorig || exit 1
+dh_make --indep --createorig --native || exit 1
 
 # Remove make calls
 grep -v makefile debian/rules > debian/rules.new
@@ -39,6 +39,6 @@ rm -rf out
 
 mkdir out
 
-mv ${SOURCEBIN}_${DEBVERSION}-1_all.deb out/
+mv ${SOURCEBIN}_${DEBVERSION}_all.deb out/
 
 rm -rf ${SOURCEBIN}_* ${SOURCEBIN}-*
