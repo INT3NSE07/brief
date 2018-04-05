@@ -17,3 +17,35 @@
 - Display a specific date (represented as a Unix timestamp) using the default format:
 
 `date -d @1473305798`
+
+- Display the date described by the string:
+
+`date -d '{{String}}'`
+
+- Display abbreviated Weekday name:
+
+`date +%a`
+
+- Display complete Weekday name:
+
+`date +%A`
+
+- Display abbreviated month name:
+
+`date +%b`
+
+- Display complete month name:
+
+`date +%B`
+
+- Display the current century:
+
+`date +%C`
+
+- Display numerical month:
+
+`date +%m`
+
+- Display numerical Day of the Week:
+
+`date +%u`

@@ -21,3 +21,7 @@
 - Get help about interactive commands:
 
 `?`
+
+- Set maximum number of iterations:
+
+`top -n`

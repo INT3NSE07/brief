@@ -25,3 +25,23 @@
 - Long format list of all files, sorted by modification date (oldest first):
 
 `ls -ltr`
+
+- List directories themselves, not their contents:
+
+`ls -d`
+
+- Sort files by size:
+
+`ls -S`
+
+- Sort files by modification time:
+
+`ls -lt`
+
+- Sort files by change time:
+
+`ls -lct`
+
+- Sort files by access time:
+
+`ls -lut`

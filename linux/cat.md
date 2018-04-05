@@ -17,3 +17,11 @@
 - Number all output lines:
 
 `cat -n {{file}}`
+
+- Squeeze multiple empty lines into one:
+
+`cat -s {{file}}`
+
+- Number non-empty lines only:
+
+`cat -b {{file}}`

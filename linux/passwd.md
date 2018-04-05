@@ -14,6 +14,22 @@
 
 `passwd -S`
 
-- Make the password of the account blank (it will set the named account passwordless):
+- Lock the password of a user:
 
-`passwd -d`
+`passwd -l {{user}}`
+
+- Unlock the password of a user:
+
+`passwd -u {{user}}`
+
+- Delete the password of a user:
+
+`passwd -d {{user}}`
+
+- Expire the password of a user:
+
+`passwd -e {{user}}`
+
+- Make passwords visible while typing:
+
+`passwd --stdin {{user}}` 

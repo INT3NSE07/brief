@@ -10,6 +10,18 @@
 
 `sort -r {{filename}}`
 
+- Numerical sort:
+
+`sort -n {{filename}}`
+
+- Remove duplicates after sorting:
+
+`sort -u {{filename}}`
+
+- Merge files instead of sorting them:
+
+`sort -m {{filename}} {{filename}}`
+
 - Sort a file using numeric rather than alphabetic order:
 
 `sort -n {{filename}}`

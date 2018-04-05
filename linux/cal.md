@@ -12,7 +12,7 @@
 
 - Use monday as the first day of the week:
 
-`cal --monday`
+`cal --monday|-m`
 
 - Display a calendar for a specific year (4 digits):
 
@@ -21,3 +21,8 @@
 - Display a calendar for a specific month and year:
 
 `cal {{month}} {{year}}`
+
+- Display julian dates:
+
+`cal -j {{year}}`
+

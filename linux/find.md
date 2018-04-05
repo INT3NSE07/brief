@@ -10,6 +10,10 @@
 
 `find {{root_path}} -path '{{**/lib/**/*.ext}}'`
 
+- Find files matching permission:
+
+`find {{root_path}} -perm {{ugo}}`
+
 - Run a command for each file, use {} within the command to access the filename:
 
 `find {{root_path}} -name '{{*.ext}}' -exec {{wc -l {} }}\;`

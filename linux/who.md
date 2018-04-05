@@ -17,3 +17,17 @@
 - Display all available information with table headers:
 
 `who -a -H`
+
+- Display time of last boot:
+
+`who -b`
+
+- Display dead processes:
+
+`who -d`
+
+- Display login manes along with total count:
+
+`who -q`
+
+

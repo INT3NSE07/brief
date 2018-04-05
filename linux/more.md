@@ -17,3 +17,19 @@
 - Exit:
 
 `q`
+
+- Squeeze multiple blank lines into one:
+
+`more -s {{source_file}}`
+
+- Use n number of lines as screen size:
+
+`more -n {{source_file}}`
+
+- Display each file from line number n:
+
+`more +n {{source_file}}`
+
+- Display file after the string occurs:
+
+`more /string {{source_file}}`

@@ -15,6 +15,10 @@
 
 `sort {{file}} | uniq -d`
 
+- Ignore case:
+
+`sort {{file}} | uniq -i`
+
 - Display number of occurrences of each line along with that line:
 
 `sort {{file}} | uniq -c`

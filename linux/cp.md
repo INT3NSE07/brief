@@ -29,3 +29,11 @@
 - Copy text files to another location, in interactive mode (prompts user before overwriting):
 
 `cp -i {{*.txt}} {{path/to/source/}}`
+
+- Hard link files instead of copying:
+
+`cp -l {{path/to/file}} {{path/to/file}}`
+
+- make symbolic links instead of copying:
+
+`cp -s {{path/to/file}} {{path/to/file}}`

@@ -17,4 +17,20 @@
 
 - Print all available system information (hardware, software, nodename):
 
-`uname -a`
+`uname -a
+
+- Print processor related information:
+
+`uname -p`
+
+- Print OS related information:
+
+`uname -o`
+
+- Print the kernel version:
+
+`uname -v`
+
+- Print the kernel release:
+
+`uname -r`

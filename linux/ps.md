@@ -25,3 +25,7 @@
 - Get the parent pid of a process:
 
 `ps -o ppid= -p {{pid}}`
+
+- List all parent and child processes:
+
+`ps -c {{process_name}}`

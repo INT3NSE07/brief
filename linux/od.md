@@ -26,3 +26,7 @@
 - Read only 100 bytes of a file starting from the 500th byte:
 
 `od --read-bytes {{100}} --skip-bytes={{500}} -v {{path/to/file}}`
+
+- Display characters in a file:
+
+`od -c {{path/to/file}}`
